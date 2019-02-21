@@ -1,3 +1,4 @@
 exports_files([
     "build_substitution_templates.bzl",
+    "test_file.txt",
 ])

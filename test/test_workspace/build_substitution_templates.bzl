@@ -59,3 +59,13 @@ java_plugin(
    deps = [":auto_value_processor"],
 )
 """
+
+# This substitution is here only to provide a regression test for the data property.  Don't use this in your
+# code, it's artificial.
+JAVAX_INJECT_SNIPPET_TO_HIGHLIGHT_DATA = """
+maven_jvm_artifact(
+   name = "javax_inject",
+   artifact = "javax.inject:javax.inject:{version}",
+   data = ["@//:test_file.txt"],
+)
+"""
