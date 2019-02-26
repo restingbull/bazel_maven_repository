@@ -39,7 +39,6 @@ def _raw_jvm_import(ctx):
     source jar.  Found: %s, %s""" % (ctx.file.jar, jars, source_jars))
 
     data_runfiles = ctx.runfiles(files = ctx.files.data, collect_data = True)
-    print("During import for %s, data runfiles: %s" % (ctx.attr.name, data_runfiles.files))
     return [
         DefaultInfo(files = depset(jars), data_runfiles = data_runfiles),
         JavaInfo(
@@ -47,6 +46,7 @@ def _raw_jvm_import(ctx):
             compile_jar = jars[0],
             source_jar = source_jars[0] if bool(source_jars) else None,
             deps = [dep[JavaInfo] for dep in ctx.attr.deps if JavaInfo in dep],
+            exports = [dep[JavaInfo] for dep in ctx.attr.exports if JavaInfo in dep],
             runtime_deps = [dep[JavaInfo] for dep in ctx.attr.runtime_deps if JavaInfo in dep],
             neverlink = getattr(ctx.attr, "neverlink", False),
         ),
@@ -58,6 +58,11 @@ raw_jvm_import = rule(
             allow_files = True,
             mandatory = True,
             cfg = "target",
+        ),
+        "exports": attr.label_list(
+            default = [],
+            mandatory = False,
+            providers = [JavaInfo],
         ),
         "deps": attr.label_list(
             default = [],
