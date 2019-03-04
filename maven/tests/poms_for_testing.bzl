@@ -43,6 +43,8 @@ SYSTEM_PATH_POM = POM_PREFIX + """
 """ + POM_SUFFIX
 
 SIMPLE_PROPERTIES_POM = POM_PREFIX + """
+  <groupId>foo</groupId>
+  <artifactId>bar</artifactId>
   <version>2.0</version>
   <properties>
     <foo>foo</foo>
@@ -104,12 +106,18 @@ COMPLEX_POM = POM_PREFIX + """
     <version>1.0</version>
   </parent>
   <artifactId>child</artifactId>
+  <version>1.1</version>
   <properties>
     <!-- Properties for versions. -->
     <animal.sniffer.version>5.0</animal.sniffer.version>
   </properties>
   <dependencies>
     <!-- test comment processing -->
+    <dependency>
+      <groupId>${pom.groupId}</groupId>
+      <artifactId>sibling</artifactId>
+      <version>${parent.version}</version>
+    </dependency>
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
       <artifactId>jsr305</artifactId>
@@ -156,6 +164,11 @@ MERGED_EXPECTED_POM = POM_PREFIX + """
   </properties>
   <dependencies>
     <dependency>
+      <groupId>test.group</groupId>
+      <artifactId>sibling</artifactId>
+      <version>1.0</version>
+    </dependency>
+    <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
       <version>25.0-jre</version>
@@ -163,7 +176,7 @@ MERGED_EXPECTED_POM = POM_PREFIX + """
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
       <artifactId>jsr305</artifactId>
-      <version>${findbugs.jsr305}</version>
+      <version>1.0</version>
     </dependency>
     <dependency>
       <groupId>com.google.dagger</groupId>
@@ -173,7 +186,7 @@ MERGED_EXPECTED_POM = POM_PREFIX + """
     <dependency>
       <groupId>org.codehaus.mojo</groupId>
       <artifactId>animal-sniffer-annotations</artifactId>
-      <version>${animal.sniffer.version}</version>
+      <version>5.0</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>

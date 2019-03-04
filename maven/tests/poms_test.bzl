@@ -38,10 +38,10 @@ def complex_pom_test(env):
     managed_dependencies = None
     properties = None
 
-    asserts.equals(env, 7, len(project.children), "child nodes of parent")
+    asserts.equals(env, 8, len(project.children), "child nodes of parent")
     asserts.equals(
         env,
-        expected = ["modelVersion", "parent", "artifactId", "properties", "dependencies", "foo", "dependencyManagement"],
+        expected = ["modelVersion", "parent", "artifactId", "version", "properties", "dependencies", "foo", "dependencyManagement"],
         actual = [x.label for x in project.children],
     )
 
@@ -54,7 +54,7 @@ def complex_pom_test(env):
             dependencies = node.children
 
     asserts.true(env, dependencies)
-    asserts.equals(env, 4, len(dependencies), "dependencies")  # Superficial dependencies, not fully accounted-for.
+    asserts.equals(env, 5, len(dependencies), "dependencies")  # Superficial dependencies, not fully accounted-for.
 
     asserts.true(env, properties)
     asserts.equals(env, 1, len(properties), "properties")
@@ -75,14 +75,14 @@ def extract_parent_test(env):
 
 def extract_properties_simple_test(env):
     properties = poms.extract_properties(poms.parse(SIMPLE_PROPERTIES_POM))
-    asserts.equals(env, 3, len(properties), "length of properties dictionary")
+    asserts.equals(env, 8, len(properties), "length of properties dictionary") # implied properties included
     asserts.equals(env, "foo", properties["foo"], "property 'foo'")
     asserts.equals(env, "bar", properties["foo.bar"], "property 'foo.bar'")
     asserts.equals(env, "2.0", properties["project.version"], "property 'project.version'")
 
 def extract_properties_complex_pom_test(env):
     properties = poms.extract_properties(poms.parse(COMPLEX_POM))
-    asserts.equals(env, 2, len(properties), "length of properties dictionary")
+    asserts.equals(env, 5, len(properties), "length of properties dictionary")
     asserts.equals(env, "5.0", properties["animal.sniffer.version"], "property 'animal.sniffer.version'")
 
 def get_variable_test(env):

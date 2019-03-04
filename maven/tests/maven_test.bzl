@@ -84,7 +84,7 @@ def get_effective_pom_test(env):
 
     asserts.equals(env, "test.group", xml.find_first(merged, "groupId").content, "groupId")
     asserts.equals(env, "child", xml.find_first(merged, "artifactId").content, "artifactId")
-    asserts.equals(env, "1.0", xml.find_first(merged, "version").content, "version")
+    asserts.equals(env, "1.1", xml.find_first(merged, "version").content, "version")
     asserts.equals(env, "jar", xml.find_first(merged, "packaging").content, "packaging")
 
 # Roll-up function.

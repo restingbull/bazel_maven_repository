@@ -213,6 +213,7 @@ def _extract_properties(project):
         node = xml.find_first(project, label)
         if bool(node):
             properties["project.%s" % label] = node.content
+            properties["pom.%s" % label] = node.content # alias for project.
     return properties
 
 def _format_dependency(dep):
