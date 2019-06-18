@@ -62,6 +62,8 @@ mkdir -p $(dirname "${cache_file}")
 echo "${content}" > ${cache_file}
 """
 
+_POM_HASH_INFIX = "sha256"
+
 def _fetch_artifact_impl(ctx):
     repository_root_path = ctx.path(".")
     forbidden_files = [
@@ -129,10 +131,10 @@ def _get_pom_sha256(ctx, artifact, urls, file):
     explicit_sha256 = ctx.attr.pom_sha256_hashes.get(artifact.original_spec)
     if explicit_sha256:
         return explicit_sha256
-    if ctx.attr.insecure_sha_cache.startswith("/"):
-        cache_dir = ctx.attr.insecure_sha_cache
+    if ctx.attr.insecure_cache.startswith("/"):
+        cache_dir = "%s/%s" % (ctx.attr.insecure_cache, _POM_HASH_INFIX)
     else:
-        cache_dir = "%s/%s" % (ctx.os.environ["HOME"], ctx.attr.insecure_sha_cache)
+        cache_dir = "%s/%s/%s" % (ctx.os.environ["HOME"], ctx.attr.insecure_cache, _POM_HASH_INFIX)
     cached_file = "%s/%s.sha256" % (cache_dir, file)
     sha_cache_result = ctx.execute(["cat", cached_file])
     if sha_cache_result.return_code != 0:
@@ -289,7 +291,7 @@ _generate_maven_repository = repository_rule(
         "dependency_target_substitutes": attr.string_list_dict(mandatory = True),
         "build_snippets": attr.string_dict(mandatory = True),
         "cache_poms_insecurely": attr.bool(mandatory = True),
-        "insecure_sha_cache": attr.string(mandatory = False),
+        "insecure_cache": attr.string(mandatory = False),
         "pom_sha256_hashes": attr.string_dict(mandatory = True),
     },
 )
@@ -399,7 +401,7 @@ def _maven_repository_specification(
         dependency_target_substitutes = {},
         repository_urls = ["https://repo1.maven.org/maven2"],
         cache_poms_insecurely = False,
-        insecure_sha_cache = None):
+        insecure_cache = None):
     _handle_legacy_specifications(artifact_declarations, insecure_artifacts, build_substitutes)
 
     if len(repository_urls) == 0:
@@ -447,7 +449,7 @@ def _maven_repository_specification(
         dependency_target_substitutes = dependency_target_substitutes_rewritten,
         build_snippets = build_snippets,
         cache_poms_insecurely = cache_poms_insecurely,
-        insecure_sha_cache = insecure_sha_cache,
+        insecure_cache = insecure_cache,
         pom_sha256_hashes = pom_sha256_hashes,
     )
 
@@ -513,7 +515,7 @@ def maven_repository_specification(
         # to cache the pom file hashes, which will enable them to participate in the content-
         # addressable cache.  By default they are not cached locally unless pom_sha256 is supplied
         # for that artifact.
-        insecure_sha_cache = ".cache/bazel_maven_repository/hashes"):
+        insecure_cache = ".cache/bazel_maven_repository/hashes"):
     # Redirected to _maven_repository_specification to allow the public parameter "artifacts" without conflicting
     # with the artifact utility struct.
     _maven_repository_specification(
@@ -524,5 +526,5 @@ def maven_repository_specification(
         dependency_target_substitutes = dependency_target_substitutes,
         repository_urls = repository_urls,
         cache_poms_insecurely = cache_poms_insecurely,
-        insecure_sha_cache = insecure_sha_cache,
+        insecure_cache = insecure_cache,
     )

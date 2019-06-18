@@ -61,11 +61,12 @@ def get_pom_test(env):
 
 def _fake_execute_for_cache_hit_test(args):
     if args[0] == "cat":
-        if args[1] == "/tmp/blah/test/group/child-1.0.pom.sha256":
+        if args[1] == "/tmp/blah/sha256/test/group/child-1.0.pom.sha256":
             return struct(
                 return_code = 0,
                 stdout = "\n1234567812345678123456781234567812345678123456781234567812345678 \n",
             )
+    fail("Unexpected Execution %s" % args)
 
 def get_pom_sha256_cache_hit_test(env):
     fake_ctx = struct(
@@ -73,7 +74,7 @@ def get_pom_sha256_cache_hit_test(env):
         read = _fake_execute_for_cache_hit_test,
         attr = struct(
             cache_poms_insecurely = True,
-            insecure_sha_cache = "/tmp/blah",
+            insecure_cache = "/tmp/blah",
             pom_sha256_hashes = {},
         ),
         report_progress = _noop_report_progress,
@@ -91,11 +92,11 @@ def _fake_download_for_cache_miss_test(url, output):
 def _fake_execute_for_cache_miss_test(args):
     print(args)
     if args[0] == "cat":
-        if args[1] == "/tmp/blah/test/group/child-1.0.pom.sha256":
+        if args[1] == "/tmp/blah/sha256/test/group/child-1.0.pom.sha256":
             return struct(return_code = 1)
     elif args[0] == "bin/pom_hash_cache_write.sh":
         if (args[1] == "1234567812345678123456781234567812345678123456781234567812345678" and
-            args[2] == "/tmp/blah/test/group/child-1.0.pom.sha256"):
+            args[2] == "/tmp/blah/sha256/test/group/child-1.0.pom.sha256"):
             return struct(return_code = 0)
     fail("Unexpected Execution %s" % args)
 
@@ -105,7 +106,7 @@ def get_pom_sha256_cache_miss_test(env):
         read = _fake_read_for_get_pom_test,
         attr = struct(
             cache_poms_insecurely = True,
-            insecure_sha_cache = "/tmp/blah",
+            insecure_cache = "/tmp/blah",
             pom_sha256_hashes = {},
         ),
         report_progress = _noop_report_progress,
@@ -122,7 +123,7 @@ def get_pom_sha256_predefined_test(env):
         download = _fake_download_for_cache_miss_test,
         read = _fake_read_for_get_pom_test,
         attr = struct(
-            insecure_sha_cache = "/tmp/blah",
+            insecure_cache = "/tmp/blah",
             pom_sha256_hashes = {
                 "test.group:child:1.0": "1234567812345678123456781234567812345678123456781234567812345678",
             },
