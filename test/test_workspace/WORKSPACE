@@ -42,11 +42,14 @@ kt_register_toolchains()
 maven_repository_specification(
     name = "maven",
 
-    # If supplied, then any pom files for which a pom_sha256 attribute is not supplied will be
+    # If true, then any pom files for which a pom_sha256 attribute is not supplied will be
     # insecurely cached (after first download) using hashes stored in this folder.
+    cache_poms_insecurely = True, # default False
+
+    # If supplied, this will be the alternate location for insecure sha hashes.
     #
     # This can be an absolute or a path relative to ${HOME}
-    insecure_pom_cache=".cache/bazel_pom_cache",
+    insecure_sha_cache=".cache/bazel_maven_repository/hashes", # This is the default
 
     # The artifact spec list.
     artifacts = {
@@ -69,7 +72,7 @@ maven_repository_specification(
         "com.google.dagger:dagger-compiler:2.20": {"insecure": True},
         "com.google.dagger:dagger-producers:2.20": {"insecure": True},
         "com.google.dagger:dagger-spi:2.20": {"insecure": True},
-        "com.google.code.findbugs:jsr305:3.0.2": {"insecure": True},
+        "com.google.code.findbugs:jsr305:3.0.1": {"insecure": True},
         "com.google.errorprone:javac-shaded:9+181-r4173-1": {"insecure": True},
         "com.google.googlejavaformat:google-java-format:1.6": {"insecure": True},
         "com.google.truth:truth:0.42": {"insecure": True},

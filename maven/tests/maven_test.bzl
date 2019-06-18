@@ -51,7 +51,7 @@ def get_pom_test(env):
     fake_ctx = struct(
         download = _noop_download,
         read = _fake_read_for_get_pom_test,
-        attr = struct(repository_urls = [_FAKE_URL_PREFIX], insecure_pom_cache = None),
+        attr = struct(repository_urls = [_FAKE_URL_PREFIX], cache_poms_insecurely = False),
         report_progress = _noop_report_progress,
     )
     project = poms.parse(
@@ -72,7 +72,8 @@ def get_pom_sha256_cache_hit_test(env):
         download = _noop_download,
         read = _fake_execute_for_cache_hit_test,
         attr = struct(
-            insecure_pom_cache = "/tmp/blah",
+            cache_poms_insecurely = True,
+            insecure_sha_cache = "/tmp/blah",
             pom_sha256_hashes = {},
         ),
         report_progress = _noop_report_progress,
@@ -103,7 +104,8 @@ def get_pom_sha256_cache_miss_test(env):
         download = _fake_download_for_cache_miss_test,
         read = _fake_read_for_get_pom_test,
         attr = struct(
-            insecure_pom_cache = "/tmp/blah",
+            cache_poms_insecurely = True,
+            insecure_sha_cache = "/tmp/blah",
             pom_sha256_hashes = {},
         ),
         report_progress = _noop_report_progress,
@@ -120,7 +122,7 @@ def get_pom_sha256_predefined_test(env):
         download = _fake_download_for_cache_miss_test,
         read = _fake_read_for_get_pom_test,
         attr = struct(
-            insecure_pom_cache = "/tmp/blah",
+            insecure_sha_cache = "/tmp/blah",
             pom_sha256_hashes = {
                 "test.group:child:1.0": "1234567812345678123456781234567812345678123456781234567812345678",
             },
@@ -148,7 +150,7 @@ def get_parent_chain_test(env):
     fake_ctx = struct(
         download = _noop_download,
         read = _fake_read_for_get_parent_chain,
-        attr = struct(repository_urls = [_FAKE_URL_PREFIX], insecure_pom_cache = None),
+        attr = struct(repository_urls = [_FAKE_URL_PREFIX], cache_poms_insecurely = False),
         report_progress = _noop_report_progress,
     )
     chain = for_testing.get_inheritance_chain(fake_ctx, COMPLEX_POM)
