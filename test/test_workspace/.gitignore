@@ -1,0 +1,5 @@
+# Bazel and IJWB
+bazel-*
+.ijwb/
+.aswb/
+.idea/
