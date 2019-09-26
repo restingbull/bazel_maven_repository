@@ -3,3 +3,4 @@ bazel-*
 .ijwb/
 .aswb/
 .idea/
+command.profile
