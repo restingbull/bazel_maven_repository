@@ -139,11 +139,51 @@ def _fetch_pom_impl(ctx):
     if not bool(packaging_type):
         fail("Could not determine packaging type from root pom for %s" % ctx.attr.artifact)
     ctx.file("%s/%s" % (DOWNLOAD_PREFIX, PACKAGING_TYPE_FILE), packaging_type)
-
     ctx.file(
         "%s/BUILD.bazel" % DOWNLOAD_PREFIX,
         _ARTIFACT_DOWNLOAD_BUILD_FILE_TEMPLATE.format(files = _format_exported_files(paths)),
     )
+
+                    pom = poms.get_project_metadata(ctx, artifact)
+                    maven_deps = _get_dependencies_from_project(ctx, exclusions, pom)
+                    maven_deps = [x for x in maven_deps if _should_include_dependency(x)]
+                    found_artifacts = {}
+                    bazel_deps = []
+                    for dep in maven_deps:
+                        found_artifacts[dep.coordinates] = dep
+                        bazel_deps += [_convert_maven_dep(ctx.attr.name, dep)]
+                    normalized_deps = [_normalize_target(x, group_path, package_target_substitutes) for x in bazel_deps]
+                    unregistered = sets.difference(known_artifacts, sets.copy_of(found_artifacts))
+                    if bool(unregistered):
+                        missing_artifacts.update({ spec: [
+                            poms.format_dependency(x)
+                            for x in maven_deps
+                            if sets.contains(unregistered, x.coordinates)
+                        ]})
+                    test_only_subst = (
+                        "\n    testonly = True," if sets.contains(test_only_artifacts, spec) else ""
+                    )
+                    target_definitions.append(
+                        _MAVEN_REPO_TARGET_TEMPLATE.format(
+                            target = strings.munge(artifact.artifact_id, "."),
+                            deps = _deps_string(normalized_deps),
+                            artifact_spec = artifact.original_spec,
+                            type = poms.extract_packaging(pom),
+                            test_only = test_only_subst,
+                            use_jetifier = "\n    use_jetifier = True," if ctx.attr.use_jetifier else ""
+                        ),
+                    )
+
+                    # Optionally add a legacy munge target
+                    # TODO(cgruber) Rip this out after a few versions.
+                    if ctx.attr.legacy_artifact_id_munge:
+                        legacy = strings.munge(artifact.artifact_id, ".", "-")
+                        new = strings.munge(artifact.artifact_id, ".")
+                        if (legacy != new):
+                            target_definitions.append(
+                                _LEGACY_NAME_MANGLING_ALIAS.format(name = legacy, actual = new),
+                            )
+
 
 fetch_pom = repository_rule(
     implementation = _fetch_pom_impl,
@@ -153,6 +193,10 @@ fetch_pom = repository_rule(
         "repository_urls": attr.string_list(),
         "cache_poms_insecurely": attr.bool(),
         "insecure_cache": attr.string(mandatory = False),
+        "use_jetifier": attr.bool(),
+        "build_snippet": attr.string(mandatory = False),
+        "testonly": attr.bool(),
+        "excludes": attr.string_list(),
     },
 )
 

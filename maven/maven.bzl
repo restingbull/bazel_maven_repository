@@ -475,6 +475,10 @@ def maven_repository_specification(
             cache_poms_insecurely = cache_poms_insecurely,
             insecure_cache = insecure_cache,
             pom_hashes = pom_sha256_hashes,
+            use_jetifier = use_jetifier,
+            build_snippet = properties.get(artifact_config_properties.BUILD_SNIPPET),
+            testonly = bool(properties.get(artifact_config_properties.TEST_ONLY)),
+            excludes = properties.get(artifact_config_properties.EXCLUDE),
         )
         poms.append(fetch_repo.pom_target(artifact))
 
